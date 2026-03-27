@@ -15,8 +15,55 @@
             height: 100vh;
             overflow: hidden;
             font-family: 'Arial', sans-serif;
-            /* Prevents accidental scrolling on mobile */
             touch-action: none; 
+        }
+
+        /* --- BACKGROUND & FLASH --- */
+        #glitch-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1; /* Behind the heart and lyrics */
+        }
+
+        .flash-anim {
+            animation: flashEffect 0.4s ease-out;
+        }
+
+        @keyframes flashEffect {
+            0% { opacity: 0.7; }
+            100% { opacity: 0; }
+        }
+
+        /* --- GLOW DUST & STREAKS --- */
+        #dust-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 3s ease-in; /* Fades in the whole effect */
+        }
+
+        .dust-particle {
+            position: absolute;
+            background: linear-gradient(to top, transparent, var(--dust-color));
+            width: 2px;
+            border-radius: 2px;
+            filter: blur(1px);
+            animation: driftUp var(--duration) linear infinite;
+            box-shadow: 0 0 8px var(--dust-color);
+        }
+
+        @keyframes driftUp {
+            0% { transform: translateY(110vh) scaleY(1); opacity: 0; }
+            20% { opacity: var(--max-opacity); }
+            80% { opacity: var(--max-opacity); }
+            100% { transform: translateY(-20vh) scaleY(1.5); opacity: 0; }
         }
 
         /* --- START SCREEN & BUTTON --- */
@@ -33,20 +80,34 @@
 
         #start-btn {
             position: relative;
-            padding: 20px 40px;
+            padding: 0px 60px; /* Updated as per your request */
             background: transparent;
             border: 3px solid #ff3352;
-            border-radius: 12px;
+            border-radius: 12px; /* Updated */
             cursor: pointer;
             overflow: hidden;
             outline: none;
             transition: all 1s ease-in-out;
             animation: borderGlow 3s infinite alternate;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+        }
+
+        .reappear-anim {
+            animation: bounceIn 1s cubic-bezier(0.36, 0, 0.66, -0.56) forwards !important;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         #start-btn.loading {
-            padding: 10px 40px;
-            border-radius: 30px;
+            padding: 0px 60px;
+            border-radius: 12px;
             animation: none;
             border-color: #ff3352;
         }
@@ -58,7 +119,7 @@
         }
 
         .gradient-text {
-            font-size: clamp(18px, 5vw, 24px); /* Scales font size for smaller screens */
+            font-size: clamp(18px, 5vw, 24px);
             font-weight: bold;
             background: linear-gradient(90deg, #ff3352, #ffb3c1, #ff3352);
             background-size: 200% auto;
@@ -112,18 +173,52 @@
             width: 0%;
             background: linear-gradient(90deg, #ff3352, #ff8da1);
             z-index: 0;
-            transition: width 7s ease-in-out;
         }
 
-        /* --- HEART CONTAINER --- */
+        /* --- LYRICS & HEART --- */
         #heart-container {
-            position: fixed; /* Fixed ensures it stays centered in the viewport */
+            position: fixed;
             top: 0; left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100vw; height: 100vh;
             display: none;
             opacity: 1;
-            transition: opacity 5s ease-in-out;
+            transition: opacity 6s ease-in-out;
+            z-index: 10; /* Above the background and dust */
+        }
+
+        #lyrics-wrapper {
+            position: fixed;
+            bottom: 12%; 
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20; /* Top layer */
+        }
+
+        .lyric-line {
+            position: absolute;
+            width: 90%;
+            text-align: center;
+            font-size: clamp(18px, 5vw, 26px);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        .lyric-word {
+            opacity: 0;
+            display: inline-block;
+            margin: 0 5px;
+            animation: wordFade 0.6s forwards ease-out;
+        }
+
+        @keyframes wordFade {
+            from { opacity: 0; transform: translateY(10px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .point-wrapper {
@@ -135,7 +230,6 @@
         .text-point {
             position: absolute;
             color: #ff3352; 
-            /* Smaller font for mobile so the words don't overlap as much */
             font-size: clamp(10px, 3vw, 18px); 
             font-weight: bold;
             white-space: nowrap;
@@ -157,6 +251,9 @@
 </head>
 <body>
 
+    <div id="glitch-overlay"></div>
+    <div id="dust-container"></div>
+
     <audio id="bg-music">
         <source src="music.mp3" type="audio/mpeg">
     </audio>
@@ -165,20 +262,49 @@
         <button id="start-btn">
             <span id="btn-fill"></span>
             <div id="btn-text-wrapper">
-                <span id="text-beefef" class="sliding-text gradient-text">Hii beefef</span>
+                <span id="text-beefef" class="sliding-text gradient-text">Hii OA</span>
                 <span id="text-imysm" class="sliding-text gradient-text">imysm</span>
             </div>
         </button>
     </div>
 
-    <div id="heart-container"></div>
+    <div id="heart-container">
+        <div id="lyrics-wrapper">
+            <div id="line-1" class="lyric-line"></div>
+            <div id="line-2" class="lyric-line"></div>
+            <div id="line-3" class="lyric-line"></div>
+        </div>
+    </div>
 
     <script>
+        // ==========================================
+        // ⚙️ CONFIGURATION SETTINGS
+        // ==========================================
         const MUSIC_START_SECOND = 160;  
         const MUSIC_END_SECOND = 190;    
         const FADE_IN_SECONDS = 5;      
         const FADE_OUT_SECONDS = 6;     
         const LOADING_BAR_SECONDS = 8;  
+
+        const MUNDO_FLASH_TIME = 174.1; 
+
+        const LYRICS_TIMING = [
+            { id: "line-1", text: "Kapag magulo na ang mundo", start: 172, end: 174.5 },
+            { id: "line-2", text: "Ikaw ang payapang hinahanap-hapap ko", start: 174.5, end: 182.5 },
+            { id: "line-3", text: "Tumakbo ka rin patungo sa 'kin", start: 185.5, end: 189 }
+        ];
+
+        // 🎇 DUST SETTINGS
+        const DUST_CONFIG = {
+            count: 45,
+            color: "#ff4d85", // Pinkish-Red glow
+            minDuration: 8,   // Seconds for a particle to travel bottom to top
+            maxDuration: 15,
+            minHeight: 10,    // Height of the fading streak
+            maxHeight: 40,
+            maxOpacity: 0.6
+        };
+        // ==========================================
 
         const startBtn = document.getElementById('start-btn');
         const startScreen = document.getElementById('start-screen');
@@ -186,16 +312,78 @@
         const textImysm = document.getElementById('text-imysm');
         const music = document.getElementById('bg-music');
         const heartContainer = document.getElementById('heart-container');
+        const dustContainer = document.getElementById('dust-container');
+        const glitchOverlay = document.getElementById('glitch-overlay');
 
         let isFadingOut = false;
+        let activeLine = null;
+        let dotInterval;
+        let hasFlashed = false;
+
+        function createDust() {
+            dustContainer.innerHTML = ""; // Clean slate
+            for (let i = 0; i < DUST_CONFIG.count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'dust-particle';
+                
+                const height = Math.random() * (DUST_CONFIG.maxHeight - DUST_CONFIG.minHeight) + DUST_CONFIG.minHeight;
+                const duration = Math.random() * (DUST_CONFIG.maxDuration - DUST_CONFIG.minDuration) + DUST_CONFIG.minDuration;
+                
+                particle.style.height = height + 'px';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.setProperty('--duration', duration + 's');
+                particle.style.setProperty('--dust-color', DUST_CONFIG.color);
+                particle.style.setProperty('--max-opacity', DUST_CONFIG.maxOpacity);
+                particle.style.animationDelay = (Math.random() * 10) + 's';
+                
+                dustContainer.appendChild(particle);
+            }
+            dustContainer.style.opacity = "1"; // Fade in from the bottom
+        }
+
+        function showLine(lineObj) {
+            const el = document.getElementById(lineObj.id);
+            el.innerHTML = ""; 
+            el.style.opacity = "1";
+            const highlights = ["MUNDO", "PAYAPANG", "IKAW"];
+
+            const words = lineObj.text.split(" ");
+            words.forEach((word, index) => {
+                const span = document.createElement("span");
+                span.className = "lyric-word";
+                const upperWord = word.toUpperCase();
+                span.innerText = upperWord;
+                const cleanWord = upperWord.replace(/[.,'"]/g, "");
+                
+                if (highlights.includes(cleanWord)) {
+                    span.style.color = "#ff3352";
+                    span.style.textShadow = "0 0 15px rgba(255, 51, 82, 0.8)";
+                } else {
+                    span.style.color = "white";
+                }
+
+                span.style.animationDelay = `${index * 0.15}s`; 
+                el.appendChild(span);
+            });
+            activeLine = lineObj.id;
+        }
+
+        function hideLine(id) {
+            const el = document.getElementById(id);
+            if (el) el.style.opacity = "0";
+        }
 
         startBtn.addEventListener('click', () => {
             if (startBtn.classList.contains('loading')) return;
+            startBtn.classList.remove('reappear-anim');
             startBtn.classList.add('loading');
+            btnFill.style.transition = `width ${LOADING_BAR_SECONDS}s ease-in-out`;
             btnFill.style.width = '100%';
 
+            createDust(); // Start dust effect immediately upon click
+
             let dotCount = 0;
-            setInterval(() => {
+            dotInterval = setInterval(() => {
                 textImysm.innerText = "imysm" + ".".repeat(dotCount);
                 dotCount = (dotCount + 1) % 4;
             }, 600);
@@ -209,12 +397,8 @@
             let volIncrement = 1 / totalStepsIn;
 
             let fadeIn = setInterval(() => {
-                if (music.volume + volIncrement < 1) {
-                    music.volume += volIncrement;
-                } else {
-                    music.volume = 1;
-                    clearInterval(fadeIn);
-                }
+                if (music.volume + volIncrement < 1) music.volume += volIncrement;
+                else { music.volume = 1; clearInterval(fadeIn); }
             }, fadeStep);
 
             setTimeout(() => {
@@ -228,32 +412,70 @@
         });
 
         music.addEventListener('timeupdate', () => {
-            if (music.currentTime >= (MUSIC_END_SECOND - FADE_OUT_SECONDS) && !isFadingOut) {
+            const curr = music.currentTime;
+
+            if (curr >= MUNDO_FLASH_TIME && !hasFlashed) {
+                glitchOverlay.classList.add('flash-anim');
+                hasFlashed = true;
+                setTimeout(() => glitchOverlay.classList.remove('flash-anim'), 500);
+            }
+
+            LYRICS_TIMING.forEach(line => {
+                if (curr >= line.start && curr < line.end && activeLine !== line.id) {
+                    showLine(line);
+                } else if (curr >= line.end && activeLine === line.id) {
+                    hideLine(line.id);
+                    activeLine = null;
+                }
+            });
+
+            if (curr >= (MUSIC_END_SECOND - FADE_OUT_SECONDS) && !isFadingOut) {
                 isFadingOut = true;
                 heartContainer.style.opacity = '0';
+                dustContainer.style.opacity = '0'; // Dust fades out at the end
+                
                 let fadeStep = 100;
                 let totalStepsOut = (FADE_OUT_SECONDS * 1000) / fadeStep;
                 let volDecrement = music.volume / totalStepsOut;
+                
                 let fadeOut = setInterval(() => {
-                    if (music.volume - volDecrement > 0) {
-                        music.volume -= volDecrement;
-                    } else {
+                    if (music.volume - volDecrement > 0) music.volume -= volDecrement;
+                    else {
                         music.volume = 0;
                         music.pause();
                         clearInterval(fadeOut);
+                        resetExperience();
                     }
                 }, fadeStep);
             }
         });
 
+        function resetExperience() {
+            dustContainer.style.opacity = '0';
+            setTimeout(() => { dustContainer.innerHTML = ""; }, 1000);
+            
+            heartContainer.style.display = 'none';
+            heartContainer.style.opacity = '1'; 
+            heartContainer.innerHTML = '<div id="lyrics-wrapper"><div id="line-1" class="lyric-line"></div><div id="line-2" class="lyric-line"></div><div id="line-3" class="lyric-line"></div></div>';
+            
+            clearInterval(dotInterval);
+            startBtn.classList.remove('loading');
+            btnFill.style.transition = 'none';
+            btnFill.style.width = '0%';
+            
+            startScreen.style.display = 'flex';
+            startScreen.style.opacity = '1';
+            startBtn.classList.add('reappear-anim');
+            
+            isFadingOut = false;
+            activeLine = null;
+            hasFlashed = false;
+        }
+
         function generateHeart() {
             const container = document.getElementById('heart-container');
             const phrase = "i miss you bff";
             const numPoints = 50; 
-            
-            // --- MOBILE SCALING LOGIC ---
-            // On a PC (usually > 1000px wide), the scale will be 22.
-            // On a phone (usually ~400px wide), the scale will drop to about 10 or 12.
             const screenWidth = window.innerWidth;
             const scale = Math.min(screenWidth / 45, 22);     
 
