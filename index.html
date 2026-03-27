@@ -6,100 +6,122 @@
     <title>I Miss You BFF</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            touch-action: none; 
+            margin: 0; padding: 0; background-color: black;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+            font-family: 'Arial', sans-serif; touch-action: none; 
+        }
+
+        /* --- AURORA BACKGROUND --- */
+        #aurora-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at 20% 30%, rgba(80, 0, 40, 0.4) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(40, 0, 60, 0.4) 0%, transparent 50%);
+            z-index: 0; pointer-events: none;
+            animation: auroraShift 12s infinite alternate ease-in-out;
+        }
+
+        @keyframes auroraShift {
+            0% { transform: scale(1); filter: hue-rotate(0deg); opacity: 0.6; }
+            100% { transform: scale(1.1); filter: hue-rotate(15deg); opacity: 1; }
         }
 
         /* --- BACKGROUND & FLASH --- */
         #glitch-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: white;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 1; 
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: white; opacity: 0; pointer-events: none; z-index: 5; 
         }
 
-        .flash-anim {
-            animation: flashEffect 0.4s ease-out;
-        }
-
+        .flash-anim { animation: flashEffect 0.4s ease-out; }
         @keyframes flashEffect {
             0% { opacity: 0.7; }
             100% { opacity: 0; }
         }
 
-        /* --- GLOW DUST --- */
-        #dust-container {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 2;
-            opacity: 0; 
+        /* --- GLOW DUST & POLAROIDS --- */
+        #dust-container, #polaroid-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; opacity: 0; 
         }
+        
+        #dust-container { z-index: 3; }
+        #polaroid-container { z-index: 2; }
 
         .dust-particle {
             position: absolute;
             background: linear-gradient(to top, transparent, var(--dust-color));
-            width: 2px;
-            border-radius: 2px;
-            filter: blur(1px);
+            width: 2px; border-radius: 2px; filter: blur(1px);
             animation: driftUp var(--duration) linear infinite;
             box-shadow: 0 0 8px var(--dust-color);
+            
+            /* Anti-Glitch Fixes */
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        .polaroid {
+            position: absolute;
+            width: 80px; height: 110px;
+            padding: 4px 4px 20px 4px; 
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.2); 
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(120vh);
+            
+            /* Anti-Glitch Fixes */
+            will-change: transform;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        .polaroid-photo {
+            width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.05); 
+            background-size: cover;
+            background-position: center;
+            opacity: 0.85; 
         }
 
         @keyframes driftUp {
-            0% { transform: translateY(110vh) scaleY(1); opacity: 0; }
+            0% { transform: translateY(115vh) scaleY(1) translateZ(0); opacity: 0; }
             20% { opacity: var(--max-opacity); }
             80% { opacity: var(--max-opacity); }
-            100% { transform: translateY(-20vh) scaleY(1.5); opacity: 0; }
+            100% { transform: translateY(-30vh) scaleY(1.5) translateZ(0); opacity: 0; }
         }
 
-        /* --- START SCREEN & BUTTON --- */
+        @keyframes driftPolaroid {
+            0% { transform: translateY(120vh) rotate(var(--rot-start)) translateZ(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-40vh) rotate(var(--rot-end)) translateZ(0); opacity: 0; }
+        }
+
+        /* --- START SCREEN & GLASS BUTTON --- */
         #start-screen {
-            position: absolute;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            transition: opacity 1.5s ease-in-out; 
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100; transition: opacity 1.5s ease-in-out; 
         }
 
         #start-btn {
-            position: relative;
-            padding: 0px 60px;
-            background: transparent;
-            border: 3px solid #ff3352;
-            border-radius: 12px;
-            cursor: pointer;
-            overflow: hidden;
-            outline: none;
+            position: relative; padding: 0px 60px;
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 51, 82, 0.4);
+            border-radius: 12px; cursor: pointer; overflow: hidden; outline: none;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             animation: borderGlow 3s infinite alternate;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 50px;
-            z-index: 105;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 50px; z-index: 105; box-shadow: 0 4px 30px rgba(0,0,0,0.3);
         }
 
-        .btn-active { transform: scale(1.1); }
+        .btn-active { transform: scale(1.1) !important; }
 
-        .reappear-anim {
-            animation: bounceIn 1s cubic-bezier(0.36, 0, 0.66, -0.56) forwards !important;
-        }
+        .reappear-anim { animation: bounceIn 1s cubic-bezier(0.36, 0, 0.66, -0.56) forwards !important; }
 
         @keyframes bounceIn {
             0% { transform: scale(0); opacity: 0; }
@@ -108,98 +130,66 @@
         }
 
         #start-btn.loading {
-            padding: 0px 60px;
-            border-radius: 12px;
-            animation: none;
-            border-color: #ff3352;
-            transform: scale(1);
+            padding: 0px 60px; border-radius: 12px; animation: none;
+            border-color: rgba(255, 51, 82, 0.8); transform: scale(1);
         }
 
         @keyframes borderGlow {
-            0% { border-color: #ff3352; box-shadow: 0 0 5px #ff3352; }
-            50% { border-color: #ff8da1; box-shadow: 0 0 20px #ff8da1; }
-            100% { border-color: #ff3352; box-shadow: 0 0 5px #ff3352; }
+            0% { border-color: rgba(255, 51, 82, 0.3); box-shadow: 0 0 10px rgba(255, 51, 82, 0.2); }
+            50% { border-color: rgba(255, 141, 161, 0.6); box-shadow: 0 0 25px rgba(255, 141, 161, 0.4); }
+            100% { border-color: rgba(255, 51, 82, 0.3); box-shadow: 0 0 10px rgba(255, 51, 82, 0.2); }
         }
 
-        /* --- TEXT & LOADING BAR --- */
+        /* --- TEXT & INK BLEED LOADING BAR --- */
         .gradient-text {
-            font-size: clamp(18px, 5vw, 24px);
-            font-weight: bold;
+            font-size: clamp(18px, 5vw, 24px); font-weight: bold;
             background: linear-gradient(90deg, #ff3352, #ffb3c1, #ff3352);
-            background-size: 200% auto;
-            color: transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: textFlow 3s linear infinite;
+            background-size: 200% auto; color: transparent;
+            -webkit-background-clip: text; background-clip: text;
+            animation: textFlow 3s linear infinite; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
-        @keyframes textFlow {
-            to { background-position: 200% center; }
-        }
+        @keyframes textFlow { to { background-position: 200% center; } }
 
         #btn-text-wrapper {
-            position: relative;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2; 
+            position: relative; height: 30px; display: flex;
+            justify-content: center; align-items: center; z-index: 2; 
         }
 
-        .sliding-text {
-            position: absolute;
-            white-space: nowrap;
-            transition: transform 1s ease-in-out, opacity 1s ease;
-        }
-
+        .sliding-text { position: absolute; white-space: nowrap; transition: transform 1s ease-in-out, opacity 1s ease; }
         #text-imysm { transform: translateY(40px); opacity: 0; }
         #start-btn.loading #text-beefef { transform: translateY(-40px); opacity: 0; }
         #start-btn.loading #text-imysm {
-            transform: translateY(0);
-            opacity: 1;
-            color: black; 
-            background: none;
-            -webkit-text-fill-color: black;
+            transform: translateY(0); opacity: 1;
+            color: white; 
+            background: none; -webkit-text-fill-color: white; text-shadow: 0 0 5px black;
         }
 
         #btn-fill {
-            position: absolute;
-            top: 0; left: 0;
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #ff3352, #ff8da1);
+            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+            background: linear-gradient(90deg, transparent, rgba(255, 51, 82, 0.8), #ff3352);
+            box-shadow: 10px 0 20px #ff3352;
+            filter: drop-shadow(0 0 5px #ff3352);
             z-index: 1; 
         }
 
         /* --- HEART TRAIL --- */
         .trail-star {
-            position: fixed;
-            width: 8px; height: 8px;
-            background: #ff3352;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 50;
-            box-shadow: 0 0 10px #ff3352;
-            animation: trailFade 0.8s forwards;
+            position: fixed; width: 8px; height: 8px; background: #ff3352;
+            border-radius: 50%; pointer-events: none; z-index: 50;
+            box-shadow: 0 0 10px #ff3352; animation: trailFade 0.8s forwards;
         }
-
-        @keyframes trailFade {
-            to { transform: scale(0); opacity: 0; }
-        }
+        @keyframes trailFade { to { transform: scale(0); opacity: 0; } }
 
         /* --- LYRICS & HEART --- */
         #heart-container {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            display: none; opacity: 1;
-            transition: opacity 6s ease-in-out;
-            z-index: 10;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: none; opacity: 1; z-index: 10;
         }
 
         #lyrics-wrapper {
-            position: fixed;
-            bottom: 12%; width: 100%; height: 60px;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 20;
+            position: fixed; bottom: 12%; width: 100%; height: 60px;
+            display: flex; justify-content: center; align-items: center; z-index: 20;
         }
 
         .lyric-line {
@@ -231,7 +221,6 @@
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
             100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
-
         @keyframes waveBeat {
             0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
             50% { transform: translate(-50%, -50%) scale(1.3); filter: brightness(1.5); }
@@ -239,8 +228,9 @@
     </style>
 </head>
 <body>
-
+    <div id="aurora-bg"></div>
     <div id="glitch-overlay"></div>
+    <div id="polaroid-container"></div>
     <div id="dust-container"></div>
 
     <audio id="bg-music">
@@ -251,7 +241,7 @@
         <button id="start-btn">
             <span id="btn-fill"></span>
             <div id="btn-text-wrapper">
-                <span id="text-beefef" class="sliding-text gradient-text">Hii OA</span>
+                <span id="text-beefef" class="sliding-text gradient-text">hi gwapa</span>
                 <span id="text-imysm" class="sliding-text gradient-text">imysm</span>
             </div>
         </button>
@@ -266,30 +256,41 @@
     </div>
 
     <script>
+        // --- CONSTANTS ---
         const MUSIC_START_SECOND = 160;  
-        const MUSIC_END_SECOND = 190;    
+        const MUSIC_END_SECOND = 190.5;    // INCREASED to give Line 3 time to play before the ending triggers
         const FADE_IN_SECONDS = 5;      
-        const FADE_OUT_SECONDS = 6;     
+        const FADE_OUT_SECONDS = 5;     
         const LOADING_BAR_SECONDS = 8;  
-
         const MUNDO_FLASH_TIME = 174.1; 
 
         const LYRICS_TIMING = [
             { id: "line-1", text: "Kapag magulo na ang mundo", start: 171.5, end: 174.5 },
-            { id: "line-2", text: "Ikaw ang payapang hinahanap-hapap ko", start: 174.5, end: 182.5 },
-            { id: "line-3", text: "Tumakbo ka rin patungo sa'kin", start: 185.5, end: 189 }
+            { id: "line-2", text: "Ikaw ang payapang hinahanap-hanap ko", start: 174.5, end: 182.5 },
+            { id: "line-3", text: "Tumakbo ka rin patungo sa'kin", start: 185.5, end: 188.5 }
         ];
 
-        const DUST_CONFIG = {
-            count: 45,
-            color: "#ff4d85", 
-            minDuration: 8,   
-            maxDuration: 15,
-            minHeight: 10,    
-            maxHeight: 40,
-            maxOpacity: 0.6
-        };
+        // ADD AS MANY PICTURES AS YOU WANT HERE
+        const POLAROID_IMAGES = [
+            "photos/bff (1).jpeg",
+            "photos/bff (2).jpeg",
+            "photos/bff (3).jpeg",
+            "photos/bff (4).jpeg",
+            "photos/bff (5).jpg",
+            "photos/bff (6).jpg",
+            "photos/bff (9).jpg",
+            "photos/bff (8).jpg",
+            "photos/bff (7).jpeg",
+            "photos/bff (10).jpg",
+            "photos/bff (11).jpeg",
+            "photos/bff (12).jpeg"
+        ];
 
+        // --- STATE MACHINE ---
+        const APP_STATE = { IDLE: 'idle', LOADING: 'loading', MUNDO: 'mundo', ENDING: 'ending' };
+        let currentState = APP_STATE.IDLE;
+
+        // --- DOM ELEMENTS ---
         const startBtn = document.getElementById('start-btn');
         const startScreen = document.getElementById('start-screen');
         const btnFill = document.getElementById('btn-fill');
@@ -297,52 +298,131 @@
         const music = document.getElementById('bg-music');
         const heartContainer = document.getElementById('heart-container');
         const dustContainer = document.getElementById('dust-container');
+        const polaroidContainer = document.getElementById('polaroid-container');
         const glitchOverlay = document.getElementById('glitch-overlay');
 
-        let isFadingOut = false;
-        let activeLine = null;
+        // --- GLOBAL VARIABLES ---
         let dotInterval;
+        let polaroidInterval; 
+        let photoIndex = 0; 
+        let activeLine = null;
         let hasFlashed = false;
         let isHeartScene = false;
 
+        // --- VISUAL GENERATORS ---
         function createTrail(e) {
             if (!isHeartScene) return;
             const x = e.clientX || (e.touches ? e.touches.clientX : 0);
             const y = e.clientY || (e.touches ? e.touches.clientY : 0);
             const star = document.createElement('div');
             star.className = 'trail-star';
-            star.style.left = x + 'px';
-            star.style.top = y + 'px';
+            star.style.left = x + 'px'; star.style.top = y + 'px';
             document.body.appendChild(star);
             setTimeout(() => star.remove(), 800);
         }
-
         window.addEventListener('mousemove', createTrail);
         window.addEventListener('touchmove', createTrail);
 
-        function createDust() {
+        function spawnPolaroid(laneIndex) {
+            const pol = document.createElement('div');
+            pol.className = 'polaroid';
+            
+            // 4 Lanes System: Each lane is 25vw wide (0-25, 25-50, 50-75, 75-100)
+            const laneWidth = 25;
+            // Add a slight random offset inside the lane so it doesn't look perfectly stiff
+            const randomOffset = 5 + (Math.random() * 10); 
+            pol.style.left = (laneIndex * laneWidth + randomOffset) + 'vw';
+            
+            pol.style.setProperty('--rot-start', (Math.random() * 20 - 10) + 'deg');
+            pol.style.setProperty('--rot-end', (Math.random() * 80 - 40) + 'deg');
+            
+            const photo = document.createElement('div');
+            photo.className = 'polaroid-photo';
+            
+            // Cycle endlessly through the list using modulo math
+            const currentImg = POLAROID_IMAGES[photoIndex % POLAROID_IMAGES.length];
+            photo.style.backgroundImage = `url('${currentImg}')`;
+            photoIndex++; // Increment for the next photo
+            
+            pol.appendChild(photo);
+            polaroidContainer.appendChild(pol);
+
+            // Animate once (takes 10 to 14 seconds to drift up)
+            const duration = Math.random() * 4 + 10;
+            pol.style.animation = `driftPolaroid ${duration}s linear forwards`;
+            
+            // GARBAGE COLLECTION: Delete the photo from the browser once it floats away
+            pol.addEventListener('animationend', () => {
+                pol.remove();
+            });
+        }
+
+        function createDustAndPolaroids() {
             dustContainer.innerHTML = ""; 
-            for (let i = 0; i < DUST_CONFIG.count; i++) {
+            polaroidContainer.innerHTML = "";
+            
+            // Set their fade-in speed 
+            dustContainer.style.transition = "opacity 2s ease";
+            polaroidContainer.style.transition = "opacity 2s ease";
+            
+            dustContainer.style.opacity = "1";
+            polaroidContainer.style.opacity = "1";
+
+            // Create Dust
+            for (let i = 0; i < 45; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'dust-particle';
-                const height = Math.random() * (DUST_CONFIG.maxHeight - DUST_CONFIG.minHeight) + DUST_CONFIG.minHeight;
-                const duration = Math.random() * (DUST_CONFIG.maxDuration - DUST_CONFIG.minDuration) + DUST_CONFIG.minDuration;
-                particle.style.height = height + 'px';
+                particle.style.height = (Math.random() * 30 + 10) + 'px';
                 particle.style.left = Math.random() * 100 + 'vw';
-                particle.style.setProperty('--duration', duration + 's');
-                particle.style.setProperty('--dust-color', DUST_CONFIG.color);
-                particle.style.setProperty('--max-opacity', DUST_CONFIG.maxOpacity);
+                particle.style.setProperty('--duration', (Math.random() * 7 + 8) + 's');
+                particle.style.setProperty('--dust-color', "#ff4d85");
+                particle.style.setProperty('--max-opacity', 0.6);
                 particle.style.animationDelay = (Math.random() * 5) + 's';
                 dustContainer.appendChild(particle);
             }
-            dustContainer.style.transition = `opacity ${LOADING_BAR_SECONDS}s linear`;
-            setTimeout(() => { dustContainer.style.opacity = "1"; }, 100);
+
+            // Start Continuous Polaroid Stream
+            if (polaroidInterval) clearInterval(polaroidInterval);
+            
+            let currentLane = 0;
+            polaroidInterval = setInterval(() => {
+                if (currentState === APP_STATE.MUNDO) {
+                    spawnPolaroid(currentLane);
+                    currentLane = (currentLane + 1) % 4; 
+                }
+            }, 500);
+        }
+
+        function generateHeart() {
+            // Set heart fade-in speed
+            heartContainer.style.transition = "opacity 6s ease-in-out";
+            
+            heartContainer.innerHTML = '<div id="lyrics-wrapper"><div id="line-1" class="lyric-line"></div><div id="line-2" class="lyric-line"></div><div id="line-3" class="lyric-line"></div></div>';
+            const phrase = "i miss you bff";
+            const numPoints = 50; 
+            const scale = Math.min(window.innerWidth / 45, 22);      
+            for (let i = 0; i < numPoints; i++) {
+                const t = (i / numPoints) * Math.PI * 2;
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                const wrapper = document.createElement('div');
+                wrapper.className = 'point-wrapper';
+                wrapper.style.transform = `translate(${x * scale}px, ${y * scale}px)`;
+                
+                const textElement = document.createElement('div');
+                textElement.className = 'text-point';
+                textElement.innerText = phrase;
+                const delaySeconds = i * 0.05; 
+                textElement.style.animation = `fadeInHeart 0.5s ease-out forwards ${delaySeconds}s, waveBeat 2s infinite ease-in-out ${delaySeconds + 0.5}s`;
+                wrapper.appendChild(textElement);
+                heartContainer.appendChild(wrapper);
+            }
         }
 
         function showLine(lineObj) {
             const el = document.getElementById(lineObj.id);
-            el.innerHTML = ""; 
-            el.style.opacity = "1";
+            if(!el) return;
+            el.innerHTML = ""; el.style.opacity = "1";
             const highlights = ["MUNDO", "PAYAPANG", "IKAW"];
             const words = lineObj.text.split(" ");
             words.forEach((word, index) => {
@@ -351,8 +431,7 @@
                 span.innerText = word.toUpperCase();
                 const cleanWord = word.toUpperCase().replace(/[.,'"]/g, "");
                 if (highlights.includes(cleanWord)) {
-                    span.style.color = "#ff3352";
-                    span.style.textShadow = "0 0 15px rgba(255, 51, 82, 0.8)";
+                    span.style.color = "#ff3352"; span.style.textShadow = "0 0 15px rgba(255, 51, 82, 0.8)";
                 } else {
                     span.style.color = "white";
                 }
@@ -367,57 +446,119 @@
             if (el) el.style.opacity = "0";
         }
 
-        startBtn.addEventListener('click', () => {
-            if (startBtn.classList.contains('loading')) return;
+        // --- APP LOGIC (THE BRAINS) ---
+        function setAppState(newState) {
+            if (currentState === newState) return;
+            currentState = newState;
 
-            startBtn.classList.add('btn-active');
-            
-            setTimeout(() => {
-                startBtn.classList.remove('btn-active');
-                startBtn.classList.remove('reappear-anim');
-                startBtn.classList.add('loading');
-                
-                btnFill.style.transition = `width ${LOADING_BAR_SECONDS}s linear`;
-                btnFill.style.width = '100%';
-                createDust();
+            switch (newState) {
+                case APP_STATE.LOADING:
+                    startBtn.classList.add('btn-active');
+                    setTimeout(() => {
+                        startBtn.classList.remove('btn-active', 'reappear-anim');
+                        startBtn.classList.add('loading');
+                        btnFill.style.transition = `width ${LOADING_BAR_SECONDS}s linear`;
+                        btnFill.style.width = '100%';
+                        
+                        let dotCount = 0;
+                        dotInterval = setInterval(() => {
+                            textImysm.innerText = "imysm" + ".".repeat(dotCount);
+                            dotCount = (dotCount + 1) % 4;
+                        }, 600);
 
-                let dotCount = 0;
-                dotInterval = setInterval(() => {
-                    textImysm.innerText = "imysm" + ".".repeat(dotCount);
-                    dotCount = (dotCount + 1) % 4;
-                }, 600);
+                        music.currentTime = MUSIC_START_SECOND;
+                        music.volume = 0; music.play();
+                        
+                        let fadeStep = 100;
+                        let totalStepsIn = (FADE_IN_SECONDS * 1000) / fadeStep;
+                        let volIncrement = 1 / totalStepsIn;
+                        let fadeIn = setInterval(() => {
+                            if (music.volume + volIncrement < 1) music.volume += volIncrement;
+                            else { music.volume = 1; clearInterval(fadeIn); }
+                        }, fadeStep);
 
-                music.currentTime = MUSIC_START_SECOND;
-                music.volume = 0;
-                music.play();
-                
-                let fadeStep = 100;
-                let totalStepsIn = (FADE_IN_SECONDS * 1000) / fadeStep;
-                let volIncrement = 1 / totalStepsIn;
-                let fadeIn = setInterval(() => {
-                    if (music.volume + volIncrement < 1) music.volume += volIncrement;
-                    else { music.volume = 1; clearInterval(fadeIn); }
-                }, fadeStep);
+                        setTimeout(() => {
+                            if (currentState === APP_STATE.LOADING) setAppState(APP_STATE.MUNDO);
+                        }, LOADING_BAR_SECONDS * 1000);
 
-                setTimeout(() => {
+                    }, 300);
+                    break;
+
+                case APP_STATE.MUNDO:
                     startScreen.style.opacity = '0';
                     setTimeout(() => {
                         startScreen.style.display = 'none';
                         heartContainer.style.display = 'block';
                         isHeartScene = true;
+                        createDustAndPolaroids();
                         generateHeart(); 
-                    }, 1500); 
-                }, LOADING_BAR_SECONDS * 1000); 
-            }, 300);
+                    }, 1500);
+                    break;
+
+                case APP_STATE.ENDING:
+                    isHeartScene = false;
+                    if (polaroidInterval) clearInterval(polaroidInterval); // Stop spawning photos
+                    
+                    // SYNCHRONIZED FADE OUT: Force everything to use the exact same fade timer
+                    heartContainer.style.transition = `opacity ${FADE_OUT_SECONDS}s ease-in-out`;
+                    dustContainer.style.transition = `opacity ${FADE_OUT_SECONDS}s ease-in-out`;
+                    polaroidContainer.style.transition = `opacity ${FADE_OUT_SECONDS}s ease-in-out`;
+
+                    heartContainer.style.opacity = '0';
+                    dustContainer.style.opacity = '0';
+                    polaroidContainer.style.opacity = '0';
+                    
+                    let fadeStep = 100;
+                    let totalStepsOut = (FADE_OUT_SECONDS * 1000) / fadeStep;
+                    let volDecrement = music.volume / totalStepsOut;
+                    let fadeOut = setInterval(() => {
+                        if (music.volume - volDecrement > 0) music.volume -= volDecrement;
+                        else {
+                            music.volume = 0; music.pause(); clearInterval(fadeOut);
+                        }
+                    }, fadeStep);
+
+                    setTimeout(() => {
+                        if(currentState === APP_STATE.ENDING) setAppState(APP_STATE.IDLE);
+                    }, FADE_OUT_SECONDS * 1000);
+                    break;
+
+                case APP_STATE.IDLE:
+                    dustContainer.innerHTML = ""; polaroidContainer.innerHTML = "";
+                    heartContainer.style.display = 'none';
+                    heartContainer.style.opacity = '1'; 
+                    clearInterval(dotInterval);
+                    if (polaroidInterval) clearInterval(polaroidInterval); // Stop spawning just in case
+                    photoIndex = 0; // Reset photo cycle on replay
+                    startBtn.classList.remove('loading');
+                    btnFill.style.transition = 'none';
+                    btnFill.style.width = '0%';
+                    startScreen.style.display = 'flex';
+                    startScreen.style.opacity = '1';
+                    startBtn.classList.add('reappear-anim');
+                    activeLine = null; hasFlashed = false;
+                    break;
+            }
+        }
+
+        // --- EVENT LISTENERS ---
+        startBtn.addEventListener('click', () => {
+            if (currentState === APP_STATE.IDLE) setAppState(APP_STATE.LOADING);
         });
 
         music.addEventListener('timeupdate', () => {
+            if (currentState !== APP_STATE.LOADING && currentState !== APP_STATE.MUNDO) return;
+
             const curr = music.currentTime;
+            
+            // Flash Effect
             if (curr >= MUNDO_FLASH_TIME && !hasFlashed) {
                 glitchOverlay.classList.add('flash-anim');
                 hasFlashed = true;
                 setTimeout(() => glitchOverlay.classList.remove('flash-anim'), 500);
             }
+
+            // Lyrics Logic
             LYRICS_TIMING.forEach(line => {
                 if (curr >= line.start && curr < line.end && activeLine !== line.id) {
                     showLine(line);
@@ -426,66 +567,12 @@
                     activeLine = null;
                 }
             });
-            if (curr >= (MUSIC_END_SECOND - FADE_OUT_SECONDS) && !isFadingOut) {
-                isFadingOut = true;
-                heartContainer.style.opacity = '0';
-                dustContainer.style.opacity = '0';
-                isHeartScene = false;
-                let fadeStep = 100;
-                let totalStepsOut = (FADE_OUT_SECONDS * 1000) / fadeStep;
-                let volDecrement = music.volume / totalStepsOut;
-                let fadeOut = setInterval(() => {
-                    if (music.volume - volDecrement > 0) music.volume -= volDecrement;
-                    else {
-                        music.volume = 0;
-                        music.pause();
-                        clearInterval(fadeOut);
-                        resetExperience();
-                    }
-                }, fadeStep);
+
+            // Trigger Ending
+            if (curr >= (MUSIC_END_SECOND - FADE_OUT_SECONDS) && currentState === APP_STATE.MUNDO) {
+                setAppState(APP_STATE.ENDING);
             }
         });
-
-        function resetExperience() {
-            dustContainer.style.opacity = '0';
-            setTimeout(() => { dustContainer.innerHTML = ""; }, 1000);
-            heartContainer.style.display = 'none';
-            heartContainer.style.opacity = '1'; 
-            heartContainer.innerHTML = '<div id="lyrics-wrapper"><div id="line-1" class="lyric-line"></div><div id="line-2" class="lyric-line"></div><div id="line-3" class="lyric-line"></div></div>';
-            clearInterval(dotInterval);
-            startBtn.classList.remove('loading');
-            btnFill.style.transition = 'none';
-            btnFill.style.width = '0%';
-            startScreen.style.display = 'flex';
-            startScreen.style.opacity = '1';
-            startBtn.classList.add('reappear-anim');
-            isFadingOut = false;
-            activeLine = null;
-            hasFlashed = false;
-            isHeartScene = false;
-        }
-
-        function generateHeart() {
-            const container = document.getElementById('heart-container');
-            const phrase = "i miss you bff";
-            const numPoints = 50; 
-            const scale = Math.min(window.innerWidth / 45, 22);      
-            for (let i = 0; i < numPoints; i++) {
-                const t = (i / numPoints) * Math.PI * 2;
-                const x = 16 * Math.pow(Math.sin(t), 3);
-                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-                const wrapper = document.createElement('div');
-                wrapper.className = 'point-wrapper';
-                wrapper.style.transform = `translate(${x * scale}px, ${y * scale}px)`;
-                const textElement = document.createElement('div');
-                textElement.className = 'text-point';
-                textElement.innerText = phrase;
-                const delaySeconds = i * 0.05; 
-                textElement.style.animation = `fadeInHeart 0.5s ease-out forwards ${delaySeconds}s, waveBeat 2s infinite ease-in-out ${delaySeconds + 0.5}s`;
-                wrapper.appendChild(textElement);
-                container.appendChild(wrapper);
-            }
-        }
     </script>
 </body>
 </html>
