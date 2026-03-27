@@ -26,7 +26,7 @@
             background: white;
             opacity: 0;
             pointer-events: none;
-            z-index: 1; /* Behind the heart and lyrics */
+            z-index: 1; 
         }
 
         .flash-anim {
@@ -38,15 +38,14 @@
             100% { opacity: 0; }
         }
 
-        /* --- GLOW DUST & STREAKS --- */
+        /* --- GLOW DUST --- */
         #dust-container {
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             pointer-events: none;
             z-index: 2;
-            opacity: 0;
-            transition: opacity 3s ease-in; /* Fades in the whole effect */
+            opacity: 0; 
         }
 
         .dust-particle {
@@ -80,20 +79,23 @@
 
         #start-btn {
             position: relative;
-            padding: 0px 60px; /* Updated as per your request */
+            padding: 0px 60px;
             background: transparent;
             border: 3px solid #ff3352;
-            border-radius: 12px; /* Updated */
+            border-radius: 12px;
             cursor: pointer;
             overflow: hidden;
             outline: none;
-            transition: all 1s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             animation: borderGlow 3s infinite alternate;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 50px;
+            z-index: 105;
         }
+
+        .btn-active { transform: scale(1.1); }
 
         .reappear-anim {
             animation: bounceIn 1s cubic-bezier(0.36, 0, 0.66, -0.56) forwards !important;
@@ -110,6 +112,7 @@
             border-radius: 12px;
             animation: none;
             border-color: #ff3352;
+            transform: scale(1);
         }
 
         @keyframes borderGlow {
@@ -118,6 +121,7 @@
             100% { border-color: #ff3352; box-shadow: 0 0 5px #ff3352; }
         }
 
+        /* --- TEXT & LOADING BAR --- */
         .gradient-text {
             font-size: clamp(18px, 5vw, 24px);
             font-weight: bold;
@@ -139,7 +143,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1;
+            z-index: 2; 
         }
 
         .sliding-text {
@@ -148,16 +152,8 @@
             transition: transform 1s ease-in-out, opacity 1s ease;
         }
 
-        #text-imysm {
-            transform: translateY(40px);
-            opacity: 0;
-        }
-
-        #start-btn.loading #text-beefef {
-            transform: translateY(-40px);
-            opacity: 0;
-        }
-
+        #text-imysm { transform: translateY(40px); opacity: 0; }
+        #start-btn.loading #text-beefef { transform: translateY(-40px); opacity: 0; }
         #start-btn.loading #text-imysm {
             transform: translateY(0);
             opacity: 1;
@@ -169,50 +165,52 @@
         #btn-fill {
             position: absolute;
             top: 0; left: 0;
-            height: 100%;
-            width: 0%;
+            height: 100%; width: 0%;
             background: linear-gradient(90deg, #ff3352, #ff8da1);
-            z-index: 0;
+            z-index: 1; 
+        }
+
+        /* --- HEART TRAIL --- */
+        .trail-star {
+            position: fixed;
+            width: 8px; height: 8px;
+            background: #ff3352;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 50;
+            box-shadow: 0 0 10px #ff3352;
+            animation: trailFade 0.8s forwards;
+        }
+
+        @keyframes trailFade {
+            to { transform: scale(0); opacity: 0; }
         }
 
         /* --- LYRICS & HEART --- */
         #heart-container {
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            display: none;
-            opacity: 1;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            display: none; opacity: 1;
             transition: opacity 6s ease-in-out;
-            z-index: 10; /* Above the background and dust */
+            z-index: 10;
         }
 
         #lyrics-wrapper {
             position: fixed;
-            bottom: 12%; 
-            width: 100%;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20; /* Top layer */
+            bottom: 12%; width: 100%; height: 60px;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 20;
         }
 
         .lyric-line {
-            position: absolute;
-            width: 90%;
-            text-align: center;
-            font-size: clamp(18px, 5vw, 26px);
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0;
-            transition: opacity 1.2s ease;
+            position: absolute; width: 90%; text-align: center;
+            font-size: clamp(18px, 5vw, 26px); font-weight: 900;
+            text-transform: uppercase; letter-spacing: 1px;
+            opacity: 0; transition: opacity 1.2s ease;
         }
 
         .lyric-word {
-            opacity: 0;
-            display: inline-block;
-            margin: 0 5px;
+            opacity: 0; display: inline-block; margin: 0 5px;
             animation: wordFade 0.6s forwards ease-out;
         }
 
@@ -221,21 +219,12 @@
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .point-wrapper {
-            position: absolute;
-            top: 50%; left: 50%;
-            will-change: transform; 
-        }
-
+        .point-wrapper { position: absolute; top: 50%; left: 50%; will-change: transform; }
         .text-point {
-            position: absolute;
-            color: #ff3352; 
-            font-size: clamp(10px, 3vw, 18px); 
-            font-weight: bold;
-            white-space: nowrap;
-            text-shadow: 0 0 8px rgba(255, 51, 82, 0.6);
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0); 
+            position: absolute; color: #ff3352; 
+            font-size: clamp(10px, 3vw, 18px); font-weight: bold;
+            white-space: nowrap; text-shadow: 0 0 8px rgba(255, 51, 82, 0.6);
+            opacity: 0; transform: translate(-50%, -50%) scale(0); 
         }
 
         @keyframes fadeInHeart {
@@ -277,9 +266,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // ⚙️ CONFIGURATION SETTINGS
-        // ==========================================
         const MUSIC_START_SECOND = 160;  
         const MUSIC_END_SECOND = 190;    
         const FADE_IN_SECONDS = 5;      
@@ -289,22 +275,20 @@
         const MUNDO_FLASH_TIME = 174.1; 
 
         const LYRICS_TIMING = [
-            { id: "line-1", text: "Kapag magulo na ang mundo", start: 172, end: 174.5 },
+            { id: "line-1", text: "Kapag magulo na ang mundo", start: 171.5, end: 174.5 },
             { id: "line-2", text: "Ikaw ang payapang hinahanap-hapap ko", start: 174.5, end: 182.5 },
-            { id: "line-3", text: "Tumakbo ka rin patungo sa 'kin", start: 185.5, end: 189 }
+            { id: "line-3", text: "Tumakbo ka rin patungo sa'kin", start: 185.5, end: 189 }
         ];
 
-        // 🎇 DUST SETTINGS
         const DUST_CONFIG = {
             count: 45,
-            color: "#ff4d85", // Pinkish-Red glow
-            minDuration: 8,   // Seconds for a particle to travel bottom to top
+            color: "#ff4d85", 
+            minDuration: 8,   
             maxDuration: 15,
-            minHeight: 10,    // Height of the fading streak
+            minHeight: 10,    
             maxHeight: 40,
             maxOpacity: 0.6
         };
-        // ==========================================
 
         const startBtn = document.getElementById('start-btn');
         const startScreen = document.getElementById('start-screen');
@@ -319,26 +303,40 @@
         let activeLine = null;
         let dotInterval;
         let hasFlashed = false;
+        let isHeartScene = false;
+
+        function createTrail(e) {
+            if (!isHeartScene) return;
+            const x = e.clientX || (e.touches ? e.touches.clientX : 0);
+            const y = e.clientY || (e.touches ? e.touches.clientY : 0);
+            const star = document.createElement('div');
+            star.className = 'trail-star';
+            star.style.left = x + 'px';
+            star.style.top = y + 'px';
+            document.body.appendChild(star);
+            setTimeout(() => star.remove(), 800);
+        }
+
+        window.addEventListener('mousemove', createTrail);
+        window.addEventListener('touchmove', createTrail);
 
         function createDust() {
-            dustContainer.innerHTML = ""; // Clean slate
+            dustContainer.innerHTML = ""; 
             for (let i = 0; i < DUST_CONFIG.count; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'dust-particle';
-                
                 const height = Math.random() * (DUST_CONFIG.maxHeight - DUST_CONFIG.minHeight) + DUST_CONFIG.minHeight;
                 const duration = Math.random() * (DUST_CONFIG.maxDuration - DUST_CONFIG.minDuration) + DUST_CONFIG.minDuration;
-                
                 particle.style.height = height + 'px';
                 particle.style.left = Math.random() * 100 + 'vw';
                 particle.style.setProperty('--duration', duration + 's');
                 particle.style.setProperty('--dust-color', DUST_CONFIG.color);
                 particle.style.setProperty('--max-opacity', DUST_CONFIG.maxOpacity);
-                particle.style.animationDelay = (Math.random() * 10) + 's';
-                
+                particle.style.animationDelay = (Math.random() * 5) + 's';
                 dustContainer.appendChild(particle);
             }
-            dustContainer.style.opacity = "1"; // Fade in from the bottom
+            dustContainer.style.transition = `opacity ${LOADING_BAR_SECONDS}s linear`;
+            setTimeout(() => { dustContainer.style.opacity = "1"; }, 100);
         }
 
         function showLine(lineObj) {
@@ -346,22 +344,18 @@
             el.innerHTML = ""; 
             el.style.opacity = "1";
             const highlights = ["MUNDO", "PAYAPANG", "IKAW"];
-
             const words = lineObj.text.split(" ");
             words.forEach((word, index) => {
                 const span = document.createElement("span");
                 span.className = "lyric-word";
-                const upperWord = word.toUpperCase();
-                span.innerText = upperWord;
-                const cleanWord = upperWord.replace(/[.,'"]/g, "");
-                
+                span.innerText = word.toUpperCase();
+                const cleanWord = word.toUpperCase().replace(/[.,'"]/g, "");
                 if (highlights.includes(cleanWord)) {
                     span.style.color = "#ff3352";
                     span.style.textShadow = "0 0 15px rgba(255, 51, 82, 0.8)";
                 } else {
                     span.style.color = "white";
                 }
-
                 span.style.animationDelay = `${index * 0.15}s`; 
                 el.appendChild(span);
             });
@@ -375,51 +369,55 @@
 
         startBtn.addEventListener('click', () => {
             if (startBtn.classList.contains('loading')) return;
-            startBtn.classList.remove('reappear-anim');
-            startBtn.classList.add('loading');
-            btnFill.style.transition = `width ${LOADING_BAR_SECONDS}s ease-in-out`;
-            btnFill.style.width = '100%';
 
-            createDust(); // Start dust effect immediately upon click
-
-            let dotCount = 0;
-            dotInterval = setInterval(() => {
-                textImysm.innerText = "imysm" + ".".repeat(dotCount);
-                dotCount = (dotCount + 1) % 4;
-            }, 600);
-
-            music.currentTime = MUSIC_START_SECOND;
-            music.volume = 0;
-            music.play();
+            startBtn.classList.add('btn-active');
             
-            let fadeStep = 100;
-            let totalStepsIn = (FADE_IN_SECONDS * 1000) / fadeStep;
-            let volIncrement = 1 / totalStepsIn;
-
-            let fadeIn = setInterval(() => {
-                if (music.volume + volIncrement < 1) music.volume += volIncrement;
-                else { music.volume = 1; clearInterval(fadeIn); }
-            }, fadeStep);
-
             setTimeout(() => {
-                startScreen.style.opacity = '0';
+                startBtn.classList.remove('btn-active');
+                startBtn.classList.remove('reappear-anim');
+                startBtn.classList.add('loading');
+                
+                btnFill.style.transition = `width ${LOADING_BAR_SECONDS}s linear`;
+                btnFill.style.width = '100%';
+                createDust();
+
+                let dotCount = 0;
+                dotInterval = setInterval(() => {
+                    textImysm.innerText = "imysm" + ".".repeat(dotCount);
+                    dotCount = (dotCount + 1) % 4;
+                }, 600);
+
+                music.currentTime = MUSIC_START_SECOND;
+                music.volume = 0;
+                music.play();
+                
+                let fadeStep = 100;
+                let totalStepsIn = (FADE_IN_SECONDS * 1000) / fadeStep;
+                let volIncrement = 1 / totalStepsIn;
+                let fadeIn = setInterval(() => {
+                    if (music.volume + volIncrement < 1) music.volume += volIncrement;
+                    else { music.volume = 1; clearInterval(fadeIn); }
+                }, fadeStep);
+
                 setTimeout(() => {
-                    startScreen.style.display = 'none';
-                    heartContainer.style.display = 'block';
-                    generateHeart(); 
-                }, 1500); 
-            }, LOADING_BAR_SECONDS * 1000); 
+                    startScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        startScreen.style.display = 'none';
+                        heartContainer.style.display = 'block';
+                        isHeartScene = true;
+                        generateHeart(); 
+                    }, 1500); 
+                }, LOADING_BAR_SECONDS * 1000); 
+            }, 300);
         });
 
         music.addEventListener('timeupdate', () => {
             const curr = music.currentTime;
-
             if (curr >= MUNDO_FLASH_TIME && !hasFlashed) {
                 glitchOverlay.classList.add('flash-anim');
                 hasFlashed = true;
                 setTimeout(() => glitchOverlay.classList.remove('flash-anim'), 500);
             }
-
             LYRICS_TIMING.forEach(line => {
                 if (curr >= line.start && curr < line.end && activeLine !== line.id) {
                     showLine(line);
@@ -428,16 +426,14 @@
                     activeLine = null;
                 }
             });
-
             if (curr >= (MUSIC_END_SECOND - FADE_OUT_SECONDS) && !isFadingOut) {
                 isFadingOut = true;
                 heartContainer.style.opacity = '0';
-                dustContainer.style.opacity = '0'; // Dust fades out at the end
-                
+                dustContainer.style.opacity = '0';
+                isHeartScene = false;
                 let fadeStep = 100;
                 let totalStepsOut = (FADE_OUT_SECONDS * 1000) / fadeStep;
                 let volDecrement = music.volume / totalStepsOut;
-                
                 let fadeOut = setInterval(() => {
                     if (music.volume - volDecrement > 0) music.volume -= volDecrement;
                     else {
@@ -453,51 +449,39 @@
         function resetExperience() {
             dustContainer.style.opacity = '0';
             setTimeout(() => { dustContainer.innerHTML = ""; }, 1000);
-            
             heartContainer.style.display = 'none';
             heartContainer.style.opacity = '1'; 
             heartContainer.innerHTML = '<div id="lyrics-wrapper"><div id="line-1" class="lyric-line"></div><div id="line-2" class="lyric-line"></div><div id="line-3" class="lyric-line"></div></div>';
-            
             clearInterval(dotInterval);
             startBtn.classList.remove('loading');
             btnFill.style.transition = 'none';
             btnFill.style.width = '0%';
-            
             startScreen.style.display = 'flex';
             startScreen.style.opacity = '1';
             startBtn.classList.add('reappear-anim');
-            
             isFadingOut = false;
             activeLine = null;
             hasFlashed = false;
+            isHeartScene = false;
         }
 
         function generateHeart() {
             const container = document.getElementById('heart-container');
             const phrase = "i miss you bff";
             const numPoints = 50; 
-            const screenWidth = window.innerWidth;
-            const scale = Math.min(screenWidth / 45, 22);     
-
+            const scale = Math.min(window.innerWidth / 45, 22);      
             for (let i = 0; i < numPoints; i++) {
                 const t = (i / numPoints) * Math.PI * 2;
                 const x = 16 * Math.pow(Math.sin(t), 3);
                 const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-
                 const wrapper = document.createElement('div');
                 wrapper.className = 'point-wrapper';
                 wrapper.style.transform = `translate(${x * scale}px, ${y * scale}px)`;
-
                 const textElement = document.createElement('div');
                 textElement.className = 'text-point';
                 textElement.innerText = phrase;
-
                 const delaySeconds = i * 0.05; 
-                textElement.style.animation = `
-                    fadeInHeart 0.5s ease-out forwards ${delaySeconds}s,
-                    waveBeat 2s infinite ease-in-out ${delaySeconds + 0.5}s
-                `;
-
+                textElement.style.animation = `fadeInHeart 0.5s ease-out forwards ${delaySeconds}s, waveBeat 2s infinite ease-in-out ${delaySeconds + 0.5}s`;
                 wrapper.appendChild(textElement);
                 container.appendChild(wrapper);
             }
