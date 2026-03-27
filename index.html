@@ -36,18 +36,6 @@
             }
         }
 
-        /* --- BACKGROUND & FLASH --- */
-        #glitch-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: white; opacity: 0; pointer-events: none; z-index: 5; 
-        }
-
-        .flash-anim { animation: flashEffect 0.4s ease-out; }
-        @keyframes flashEffect {
-            0% { opacity: 0.7; }
-            100% { opacity: 0; }
-        }
-
         /* --- GLOW DUST & POLAROIDS --- */
         #dust-container, #polaroid-container {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -239,7 +227,6 @@
 </head>
 <body>
     <div id="aurora-bg"></div>
-    <div id="glitch-overlay"></div>
     <div id="polaroid-container"></div>
     <div id="dust-container"></div>
 
@@ -272,7 +259,6 @@
         const FADE_IN_SECONDS = 5;      
         const FADE_OUT_SECONDS = 5;     
         const LOADING_BAR_SECONDS = 8;  
-        const MUNDO_FLASH_TIME = 174.1; 
 
         const LYRICS_TIMING = [
             { id: "line-1", text: "Kapag magulo na ang mundo", start: 171.5, end: 174.5 },
@@ -310,14 +296,12 @@
         const heartContainer = document.getElementById('heart-container');
         const dustContainer = document.getElementById('dust-container');
         const polaroidContainer = document.getElementById('polaroid-container');
-        const glitchOverlay = document.getElementById('glitch-overlay');
 
         // --- GLOBAL VARIABLES ---
         let dotInterval;
         let polaroidInterval; 
         let photoIndex = 0; 
         let activeLine = null;
-        let hasFlashed = false;
         let isHeartScene = false;
 
         // --- VISUAL GENERATORS ---
@@ -409,7 +393,7 @@
             heartContainer.style.transition = "opacity 6s ease-in-out";
             
             heartContainer.innerHTML = '<div id="lyrics-wrapper"><div id="line-1" class="lyric-line"></div><div id="line-2" class="lyric-line"></div><div id="line-3" class="lyric-line"></div></div>';
-            const phrase = "i miss you bff";
+            const phrase = "imissu bff";
             const numPoints = 50; 
             const scale = Math.min(window.innerWidth / 45, 22);      
             for (let i = 0; i < numPoints; i++) {
@@ -519,15 +503,14 @@
                     dustContainer.style.opacity = '0';
                     polaroidContainer.style.opacity = '0';
                     
-                    let fadeStep = 100;
-                    let totalStepsOut = (FADE_OUT_SECONDS * 1000) / fadeStep;
+                    let totalStepsOut = (FADE_OUT_SECONDS * 1000) / 100;
                     let volDecrement = music.volume / totalStepsOut;
                     let fadeOut = setInterval(() => {
                         if (music.volume - volDecrement > 0) music.volume -= volDecrement;
                         else {
                             music.volume = 0; music.pause(); clearInterval(fadeOut);
                         }
-                    }, fadeStep);
+                    }, 100);
 
                     setTimeout(() => {
                         if(currentState === APP_STATE.ENDING) setAppState(APP_STATE.IDLE);
@@ -547,7 +530,7 @@
                     startScreen.style.display = 'flex';
                     startScreen.style.opacity = '1';
                     startBtn.classList.add('reappear-anim');
-                    activeLine = null; hasFlashed = false;
+                    activeLine = null;
                     break;
             }
         }
@@ -561,13 +544,6 @@
             if (currentState !== APP_STATE.LOADING && currentState !== APP_STATE.MUNDO) return;
 
             const curr = music.currentTime;
-            
-            // Flash Effect
-            if (curr >= MUNDO_FLASH_TIME && !hasFlashed) {
-                glitchOverlay.classList.add('flash-anim');
-                hasFlashed = true;
-                setTimeout(() => glitchOverlay.classList.remove('flash-anim'), 500);
-            }
 
             // Lyrics Logic
             LYRICS_TIMING.forEach(line => {
