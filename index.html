@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I Miss You BFF</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* --- START SCREEN & BUTTON --- */
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 1.5s ease-in-out; 
+        }
+
+        #start-btn {
+            position: relative;
+            padding: 25px 50px;
+            background: transparent;
+            /* Gradient pulsing border */
+            border: 3px solid #ff3352;
+            border-radius: 12px;
+            cursor: pointer;
+            overflow: hidden;
+            outline: none;
+            /* Transition for the "shrink" effect */
+            transition: all 1s ease-in-out;
+            animation: borderGlow 3s infinite alternate;
+        }
+
+        /* The Shrinking Loading State */
+        #start-btn.loading {
+            padding: 10px 50px; /* Shrinks the height vertically */
+            border-radius: 30px; /* Turns into a pill shape */
+            animation: none; /* Stops the glow while loading */
+            border-color: #ff3352;
+        }
+
+        @keyframes borderGlow {
+            0% { border-color: #ff3352; box-shadow: 0 0 5px #ff3352; }
+            50% { border-color: #ff8da1; box-shadow: 0 0 20px #ff8da1; }
+            100% { border-color: #ff3352; box-shadow: 0 0 5px #ff3352; }
+        }
+
+        /* The Animated Gradient Text */
+        .gradient-text {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff3352, #ffb3c1, #ff3352);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: textFlow 3s linear infinite;
+        }
+
+        @keyframes textFlow {
+            to { background-position: 200% center; }
+        }
+
+        /* Text Wrapper to handle the sliding animation */
+        #btn-text-wrapper {
+            position: relative;
+            height: 30px; /* Locks the height so text can slide in/out clearly */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .sliding-text {
+            position: absolute;
+            white-space: nowrap;
+            transition: transform 1s ease-in-out, opacity 1s ease;
+        }
+
+        #text-beefef {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #text-imysm {
+            transform: translateY(40px); /* Starts hidden below */
+            opacity: 0;
+        }
+
+        /* How the text moves when the button is clicked */
+        #start-btn.loading #text-beefef {
+            transform: translateY(-40px); /* Slides up and disappears */
+            opacity: 0;
+        }
+
+        #start-btn.loading #text-imysm {
+            transform: translateY(0); /* Slides up into the center */
+            opacity: 1;
+            /* Changes to black so it's readable over the pink loading bar */
+            color: black; 
+            background: none;
+            -webkit-text-fill-color: black;
+            text-shadow: none;
+        }
+
+        /* The Loading Bar Fill */
+        #btn-fill {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff3352, #ff8da1);
+            z-index: 0;
+            transition: width 7s ease-in-out; /* 7 SECONDS SLOW LOAD */
+        }
+
+        /* --- HEART CONTAINER --- */
+        #heart-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            opacity: 1;
+            transition: opacity 5s ease-in-out; /* 5 second slow fade out at the very end */
+        }
+
+        .point-wrapper {
+            position: absolute;
+            top: 50%; left: 50%;
+            will-change: transform; 
+        }
+
+        .text-point {
+            position: absolute;
+            color: #ff3352; 
+            font-size: 18px;
+            font-weight: bold;
+            white-space: nowrap;
+            text-shadow: 0 0 8px rgba(255, 51, 82, 0.6);
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0); 
+        }
+
+        @keyframes fadeInHeart {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes waveBeat {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+            50% { transform: translate(-50%, -50%) scale(1.4); filter: brightness(1.5); }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-screen">
+        <button id="start-btn">
+            <span id="btn-fill"></span>
+            <div id="btn-text-wrapper">
+                <span id="text-beefef" class="sliding-text gradient-text">Hii OA</span>
+                <span id="text-imysm" class="sliding-text gradient-text">imysm</span>
+            </div>
+        </button>
+    </div>
+
+    <div id="heart-container"></div>
+
+    <script>
+        // ==========================================
+        // ⚙️ CONFIGURATION SETTINGS
+        // Change these numbers to match your song!
+        // ==========================================
+        const MUSIC_START_SECOND = 160;  // What second the song should start playing
+        const MUSIC_END_SECOND = 190;    // What second the song should stop
+        const FADE_IN_SECONDS = 5;      // How many seconds it takes for music to slowly get loud
+        const FADE_OUT_SECONDS = 6;     // How many seconds it takes for music (and heart) to fade away
+        const LOADING_BAR_SECONDS = 8;  // How slow the button fills up
+        // ==========================================
+
+        const startBtn = document.getElementById('start-btn');
+        const startScreen = document.getElementById('start-screen');
+        const btnFill = document.getElementById('btn-fill');
+        const textImysm = document.getElementById('text-imysm');
+        const music = document.getElementById('bg-music');
+        const heartContainer = document.getElementById('heart-container');
+
+        let isFadingOut = false;
+
+        startBtn.addEventListener('click', () => {
+            if (startBtn.classList.contains('loading')) return;
+            
+            // 1. Shrink the button and start the fill
+            startBtn.classList.add('loading');
+            btnFill.style.transition = `width ${LOADING_BAR_SECONDS}s ease-in-out`;
+            btnFill.style.width = '100%';
+
+            // 2. Start the "imysm..." dot animation
+            let dotCount = 0;
+            setInterval(() => {
+                textImysm.innerText = "imysm" + ".".repeat(dotCount);
+                dotCount = (dotCount + 1) % 4; // Cycles 0, 1, 2, 3
+            }, 600); // Changes dots every 0.6 seconds
+
+            // 3. Audio Setup & Slow Fade In
+            music.currentTime = MUSIC_START_SECOND;
+            music.volume = 0;
+            music.play();
+            
+            let fadeStep = 100; // Update volume every 100ms
+            let totalStepsIn = (FADE_IN_SECONDS * 1000) / fadeStep;
+            let volIncrement = 1 / totalStepsIn;
+
+            let fadeIn = setInterval(() => {
+                if (music.volume + volIncrement < 1) {
+                    music.volume += volIncrement;
+                } else {
+                    music.volume = 1;
+                    clearInterval(fadeIn);
+                }
+            }, fadeStep);
+
+            // 4. Wait for the loading bar to finish, then show the heart
+            setTimeout(() => {
+                startScreen.style.opacity = '0';
+                setTimeout(() => {
+                    startScreen.style.display = 'none';
+                    heartContainer.style.display = 'block';
+                    generateHeart(); 
+                }, 1500); 
+            }, LOADING_BAR_SECONDS * 1000); 
+        });
+
+        // 5. Monitor the music to trigger the End Fade Out
+        music.addEventListener('timeupdate', () => {
+            // If the music reaches the designated end point minus the fade duration
+            if (music.currentTime >= (MUSIC_END_SECOND - FADE_OUT_SECONDS) && !isFadingOut) {
+                isFadingOut = true;
+                
+                // Trigger the heart to slowly fade to black
+                heartContainer.style.transition = `opacity ${FADE_OUT_SECONDS}s ease-in-out`;
+                heartContainer.style.opacity = '0';
+
+                // Slowly fade out the music
+                let fadeStep = 100;
+                let totalStepsOut = (FADE_OUT_SECONDS * 1000) / fadeStep;
+                let volDecrement = music.volume / totalStepsOut;
+
+                let fadeOut = setInterval(() => {
+                    if (music.volume - volDecrement > 0) {
+                        music.volume -= volDecrement;
+                    } else {
+                        music.volume = 0;
+                        music.pause();
+                        clearInterval(fadeOut);
+                    }
+                }, fadeStep);
+            }
+        });
+
+        // --- THE HEART GENERATOR ---
+        function generateHeart() {
+            const container = document.getElementById('heart-container');
+            const phrase = "i miss you bff";
+            const numPoints = 50; 
+            const scale = 22;     
+
+            for (let i = 0; i < numPoints; i++) {
+                const t = (i / numPoints) * Math.PI * 2;
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'point-wrapper';
+                wrapper.style.transform = `translate(${x * scale}px, ${y * scale}px)`;
+
+                const textElement = document.createElement('div');
+                textElement.className = 'text-point';
+                textElement.innerText = phrase;
+
+                const delaySeconds = i * 0.05; 
+                textElement.style.animation = `
+                    fadeInHeart 0.5s ease-out forwards ${delaySeconds}s,
+                    waveBeat 2s infinite ease-in-out ${delaySeconds + 0.5}s
+                `;
+
+                wrapper.appendChild(textElement);
+                container.appendChild(wrapper);
+            }
+        }
+    </script>
+</body>
+</html>
