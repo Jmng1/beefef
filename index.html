@@ -15,6 +15,8 @@
             height: 100vh;
             overflow: hidden;
             font-family: 'Arial', sans-serif;
+            /* Prevents accidental scrolling on mobile */
+            touch-action: none; 
         }
 
         /* --- START SCREEN & BUTTON --- */
@@ -31,24 +33,21 @@
 
         #start-btn {
             position: relative;
-            padding: 25px 50px;
+            padding: 20px 40px;
             background: transparent;
-            /* Gradient pulsing border */
             border: 3px solid #ff3352;
             border-radius: 12px;
             cursor: pointer;
             overflow: hidden;
             outline: none;
-            /* Transition for the "shrink" effect */
             transition: all 1s ease-in-out;
             animation: borderGlow 3s infinite alternate;
         }
 
-        /* The Shrinking Loading State */
         #start-btn.loading {
-            padding: 10px 50px; /* Shrinks the height vertically */
-            border-radius: 30px; /* Turns into a pill shape */
-            animation: none; /* Stops the glow while loading */
+            padding: 10px 40px;
+            border-radius: 30px;
+            animation: none;
             border-color: #ff3352;
         }
 
@@ -58,9 +57,8 @@
             100% { border-color: #ff3352; box-shadow: 0 0 5px #ff3352; }
         }
 
-        /* The Animated Gradient Text */
         .gradient-text {
-            font-size: 24px;
+            font-size: clamp(18px, 5vw, 24px); /* Scales font size for smaller screens */
             font-weight: bold;
             background: linear-gradient(90deg, #ff3352, #ffb3c1, #ff3352);
             background-size: 200% auto;
@@ -74,10 +72,9 @@
             to { background-position: 200% center; }
         }
 
-        /* Text Wrapper to handle the sliding animation */
         #btn-text-wrapper {
             position: relative;
-            height: 30px; /* Locks the height so text can slide in/out clearly */
+            height: 30px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -90,33 +87,24 @@
             transition: transform 1s ease-in-out, opacity 1s ease;
         }
 
-        #text-beefef {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
         #text-imysm {
-            transform: translateY(40px); /* Starts hidden below */
+            transform: translateY(40px);
             opacity: 0;
         }
 
-        /* How the text moves when the button is clicked */
         #start-btn.loading #text-beefef {
-            transform: translateY(-40px); /* Slides up and disappears */
+            transform: translateY(-40px);
             opacity: 0;
         }
 
         #start-btn.loading #text-imysm {
-            transform: translateY(0); /* Slides up into the center */
+            transform: translateY(0);
             opacity: 1;
-            /* Changes to black so it's readable over the pink loading bar */
             color: black; 
             background: none;
             -webkit-text-fill-color: black;
-            text-shadow: none;
         }
 
-        /* The Loading Bar Fill */
         #btn-fill {
             position: absolute;
             top: 0; left: 0;
@@ -124,17 +112,18 @@
             width: 0%;
             background: linear-gradient(90deg, #ff3352, #ff8da1);
             z-index: 0;
-            transition: width 7s ease-in-out; /* 7 SECONDS SLOW LOAD */
+            transition: width 7s ease-in-out;
         }
 
         /* --- HEART CONTAINER --- */
         #heart-container {
-            position: relative;
+            position: fixed; /* Fixed ensures it stays centered in the viewport */
+            top: 0; left: 0;
             width: 100vw;
             height: 100vh;
             display: none;
             opacity: 1;
-            transition: opacity 5s ease-in-out; /* 5 second slow fade out at the very end */
+            transition: opacity 5s ease-in-out;
         }
 
         .point-wrapper {
@@ -146,7 +135,8 @@
         .text-point {
             position: absolute;
             color: #ff3352; 
-            font-size: 18px;
+            /* Smaller font for mobile so the words don't overlap as much */
+            font-size: clamp(10px, 3vw, 18px); 
             font-weight: bold;
             white-space: nowrap;
             text-shadow: 0 0 8px rgba(255, 51, 82, 0.6);
@@ -161,7 +151,7 @@
 
         @keyframes waveBeat {
             0%, 100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
-            50% { transform: translate(-50%, -50%) scale(1.4); filter: brightness(1.5); }
+            50% { transform: translate(-50%, -50%) scale(1.3); filter: brightness(1.5); }
         }
     </style>
 </head>
@@ -175,7 +165,7 @@
         <button id="start-btn">
             <span id="btn-fill"></span>
             <div id="btn-text-wrapper">
-                <span id="text-beefef" class="sliding-text gradient-text">Hii OA</span>
+                <span id="text-beefef" class="sliding-text gradient-text">Hii beefef</span>
                 <span id="text-imysm" class="sliding-text gradient-text">imysm</span>
             </div>
         </button>
@@ -184,16 +174,11 @@
     <div id="heart-container"></div>
 
     <script>
-        // ==========================================
-        // ⚙️ CONFIGURATION SETTINGS
-        // Change these numbers to match your song!
-        // ==========================================
-        const MUSIC_START_SECOND = 160;  // What second the song should start playing
-        const MUSIC_END_SECOND = 190;    // What second the song should stop
-        const FADE_IN_SECONDS = 5;      // How many seconds it takes for music to slowly get loud
-        const FADE_OUT_SECONDS = 6;     // How many seconds it takes for music (and heart) to fade away
-        const LOADING_BAR_SECONDS = 8;  // How slow the button fills up
-        // ==========================================
+        const MUSIC_START_SECOND = 160;  
+        const MUSIC_END_SECOND = 190;    
+        const FADE_IN_SECONDS = 5;      
+        const FADE_OUT_SECONDS = 6;     
+        const LOADING_BAR_SECONDS = 8;  
 
         const startBtn = document.getElementById('start-btn');
         const startScreen = document.getElementById('start-screen');
@@ -206,25 +191,20 @@
 
         startBtn.addEventListener('click', () => {
             if (startBtn.classList.contains('loading')) return;
-            
-            // 1. Shrink the button and start the fill
             startBtn.classList.add('loading');
-            btnFill.style.transition = `width ${LOADING_BAR_SECONDS}s ease-in-out`;
             btnFill.style.width = '100%';
 
-            // 2. Start the "imysm..." dot animation
             let dotCount = 0;
             setInterval(() => {
                 textImysm.innerText = "imysm" + ".".repeat(dotCount);
-                dotCount = (dotCount + 1) % 4; // Cycles 0, 1, 2, 3
-            }, 600); // Changes dots every 0.6 seconds
+                dotCount = (dotCount + 1) % 4;
+            }, 600);
 
-            // 3. Audio Setup & Slow Fade In
             music.currentTime = MUSIC_START_SECOND;
             music.volume = 0;
             music.play();
             
-            let fadeStep = 100; // Update volume every 100ms
+            let fadeStep = 100;
             let totalStepsIn = (FADE_IN_SECONDS * 1000) / fadeStep;
             let volIncrement = 1 / totalStepsIn;
 
@@ -237,7 +217,6 @@
                 }
             }, fadeStep);
 
-            // 4. Wait for the loading bar to finish, then show the heart
             setTimeout(() => {
                 startScreen.style.opacity = '0';
                 setTimeout(() => {
@@ -248,21 +227,13 @@
             }, LOADING_BAR_SECONDS * 1000); 
         });
 
-        // 5. Monitor the music to trigger the End Fade Out
         music.addEventListener('timeupdate', () => {
-            // If the music reaches the designated end point minus the fade duration
             if (music.currentTime >= (MUSIC_END_SECOND - FADE_OUT_SECONDS) && !isFadingOut) {
                 isFadingOut = true;
-                
-                // Trigger the heart to slowly fade to black
-                heartContainer.style.transition = `opacity ${FADE_OUT_SECONDS}s ease-in-out`;
                 heartContainer.style.opacity = '0';
-
-                // Slowly fade out the music
                 let fadeStep = 100;
                 let totalStepsOut = (FADE_OUT_SECONDS * 1000) / fadeStep;
                 let volDecrement = music.volume / totalStepsOut;
-
                 let fadeOut = setInterval(() => {
                     if (music.volume - volDecrement > 0) {
                         music.volume -= volDecrement;
@@ -275,12 +246,16 @@
             }
         });
 
-        // --- THE HEART GENERATOR ---
         function generateHeart() {
             const container = document.getElementById('heart-container');
             const phrase = "i miss you bff";
             const numPoints = 50; 
-            const scale = 22;     
+            
+            // --- MOBILE SCALING LOGIC ---
+            // On a PC (usually > 1000px wide), the scale will be 22.
+            // On a phone (usually ~400px wide), the scale will drop to about 10 or 12.
+            const screenWidth = window.innerWidth;
+            const scale = Math.min(screenWidth / 45, 22);     
 
             for (let i = 0; i < numPoints; i++) {
                 const t = (i / numPoints) * Math.PI * 2;
